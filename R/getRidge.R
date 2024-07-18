@@ -1,3 +1,41 @@
+#' Identify ridges based on the local maximum matrix
+#' 
+#' Identify ridges by connecting the local maximum of 2-D CWT coefficients from
+#' the coarse scale to detail scale. The local maximum matrix is returned from
+#' \code{\link{getLocalMaximumCWT}}
+#' 
+#' 
+#' @param localMax The local maximum matrix is returned from
+#' \code{\link{getLocalMaximumCWT}} with 1 represents maximum, others are 0.
+#' @param iInit The start column to search ridge. By default, it starts from
+#' the coarsest scale level.
+#' @param step Search step. -1 by default, which means searching from coarse
+#' scale to detail scale column by column.
+#' @param iFinal The final column index of search ridge.
+#' @param minWinSize The minimum slide window size used.
+#' @param gapTh The gap allowed during searching for ridge. 3 by default.
+#' @param skip The column to be skipped during search.
+#' @return Return a list of ridge. As some ridges may end at the scale larger
+#' than 1, in order to keep the uniqueness of the ridge names, we combined the
+#' smallest scale of the ridge and m/z index of the peak at that scale together
+#' to name the ridges. For example the ridge name "1\_653" means the peak ridge
+#' ends at the CWT scale 1 with m/z index 653 at scale 1.
+#' @author Pan Du, Simon Lin
+#' @seealso \code{\link{getLocalMaximumCWT}}, \code{\link{identifyMajorPeaks}}
+#' @references Du, P., Kibbe, W.A. and Lin, S.M. (2006) Improved peak detection
+#' in mass spectrum by incorporating continuous wavelet transform-based pattern
+#' matching, Bioinformatics, 22, 2059-2065.
+#' @keywords methods
+#' @examples
+#' 
+#' 	data(exampleMS)
+#' 	scales <- seq(1, 64, 3)
+#' 	wCoefs <- cwt(exampleMS[5000:11000], scales=scales, wavelet='mexh')
+#' 	
+#' 	localMax <- getLocalMaximumCWT(wCoefs)
+#' 	ridgeList <- getRidge(localMax)
+#' 	plotRidgeList(ridgeList)
+#' 
 getRidge <- function(localMax, iInit=ncol(localMax), step=-1, iFinal=1, minWinSize=5, gapTh=3, skip=NULL) {
 
 	scales <- as.numeric(colnames(localMax))
